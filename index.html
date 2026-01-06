@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة حلوان التعليمية | القانون المدني</title>
+    <meta name="description" content="This platform was developed by Omar Abd Al-Tawab Saleh. An interactive educational portal for Helwan University Law students.">
+<meta name="author" content="Omar Abd Al-Tawab Saleh">
+<meta property="og:title" content="Helwan Educational Platform | Civil Law">
+<meta property="og:description" content="This platform was developed by Omar Abd Al-Tawab Saleh for law students at Helwan University.">
+<meta property="og:type" content="website">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Helwan Educational Platform">
+<meta name="twitter:description" content="Developed by Omar Abd Al-Tawab Saleh.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a237e;
+            --gold: #ffd700;
+            --cyan: #00e5ff;
+            --glass: rgba(255, 255, 255, 0.08);
+            --grad-bar: linear-gradient(90deg, #ffd700, #00e5ff);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+            overflow-x: hidden;
+        }
+
+        /* تأثير البلور عند ظهور الرسالة */
+        #main-wrapper.blur {
+            filter: blur(8px);
+            pointer-events: none;
+            transition: 0.5s;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 700px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* نافذة الاقتراحات المنبثقة */
+        .suggestion-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            background: rgba(30, 41, 59, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid var(--gold);
+            z-index: 10000;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.4s all ease-in-out;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .suggestion-popup.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .whatsapp-pulse {
+            width: 60px; height: 60px; background: #25d366;
+            color: white; border-radius: 50%; display: flex;
+            justify-content: center; align-items: center;
+            font-size: 30px; margin: 20px auto; text-decoration: none;
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        /* باقي التنسيقات (كما هي في الكود السابق) */
+        .main-header { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--gold); padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 5px; }
+        .gradient-line { height: 4px; width: 100%; background: var(--grad-bar); border-radius: 10px; margin-bottom: 30px; }
+        .input-group { margin-bottom: 15px; text-align: right; }
+        label { display: block; margin-bottom: 5px; color: #cbd5e1; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #f8fafc; color: #1e293b; font-size: 1rem; }
+        .btn-gold { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--gold); color: #000; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .dev-footer { margin-top: 20px; text-align: center; font-size: 0.8rem; color: #94a3b8; }
+        .dev-name { color: var(--cyan); font-weight: bold; text-shadow: 0 0 5px var(--cyan); }
+        .social-links { margin-top: 15px; display: flex; justify-content: center; gap: 20px; }
+        .social-links a { color: white; font-size: 1.5rem; transition: 0.3s; }
+        .fa-whatsapp { color: #25d366; }
+        .fa-facebook { color: #1877f2; }
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 600px) { .content-grid { grid-template-columns: 1fr; } }
+        .card { background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .list-item { background: rgba(255,255,255,0.05); padding: 12px; margin: 8px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .quiz-box { background: rgba(0,0,0,0.3); padding: 25px; border-radius: 15px; margin-top: 20px; }
+        .ans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .ans-btn { padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; color: white; background: #475569; }
+        .correct-ans { background: #22c55e !important; }
+        .wrong-ans { background: #ef4444 !important; }
+        .review-section { max-height: 250px; overflow-y: auto; margin-top: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 10px; text-align: right; }
+        .review-item { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 8px 0; font-size: 0.85rem; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+/* تنسيق الترس الأصفر الجميل */
+.gear-yellow {
+    font-size: 1.7rem;
+    color: #ffff00; /* أصفر صريح وفاقع */
+    animation: rotate-gear-yellow 5s linear infinite;
+    /* تأثير التوهج الأصفر */
+    filter: drop-shadow(0 0 10px rgba(255, 255, 0, 0.8));
+}
+
+@keyframes rotate-gear-yellow {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* إضافة لمسة جمالية عند تمرير الماوس فوق العنوان */
+h1:hover .gear-yellow {
+    color: #ffd700; /* يتحول لذهبي غامق عند اللمس */
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1));
+    transition: 0.3s;
+}
+
+    /* تصميم الزر العائم */
+    .whatsapp-fab {
+        position: fixed;
+        bottom: 30px;
+        right: 30px; /* يمكنك تغييرها إلى left حسب رغبتك */
+        width: 65px;
+        height: 65px;
+        background: linear-gradient(135deg, #0f2027 0 0%, #007bff 100%);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #1a237e; /* لون الأيقونة داكن ليتناسب مع التدرج الفاتح */
+        font-size: 32px;
+        box-shadow: 0 10px 25px rgba(0, 229, 255, 0.4);
+        cursor: pointer;
+        text-decoration: none;
+        z-index: 9999;
+        transition: all 5.9s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation: floating-pulse 2s infinite;
+    }
+
+    /* تأثير عند تمرير الماوس */
+    .whatsapp-fab:hover {
+        transform: scale(1.1) translateY(-10px);
+        box-shadow: 0 15px 30px rgba(255, 215, 0, 0.5);
+        color: #000;
+    }
+
+    /* تأثير النبض المستمر */
+    @keyframes floating-pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 20px rgba(0, 229, 255, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(0, 229, 255, 0);
+        }
+    }
+
+    /* تسمية تظهر بجانب الزر (اختياري) */
+    .whatsapp-fab::before {
+        content: "تواصل معنا";
+        position: absolute;
+        right: 80px;
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-family: 'Cairo', sans-serif;
+        white-space: nowrap;
+        opacity: 0;
+        transform: translateX(20px);
+        transition: 0.3s;
+        pointer-events: none;
+    }
+
+    .whatsapp-fab:hover::before {
+        opacity: 1;
+        transform: translateX(0);
+    }
+</style>
+
+<a href="https://wa.me/201202763155" class="whatsapp-fab" target="_blank" title="تواصل معنا عبر واتساب">
+    <i class="fab fa-whatsapp"></i>
+</a>
+
+
+    <div id="suggestion-modal" class="suggestion-popup">
+        <h3 style="color: var(--gold);">نحن نهتم برأيك! 💡</h3>
+        <p style="margin-top: 10px; font-size: 0.95rem;">لو عندك أي اقتراحات تواصل معنا واتساب</p>
+        <a href="https://wa.me/201202763155" class="whatsapp-pulse" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+        <button class="btn-gold" style="padding: 8px 20px; width: auto;" onclick="closePopup()">إغلاق</button>
+    </div>
+
+    <div id="main-wrapper" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        
+        <div class="container">
+       <div id="login-section">
+   <div style="text-align: center; margin-bottom: 25px;">
+    <h1 style="color: var(--gold); display: inline-flex; align-items: center; justify-content: center; gap: 15px; font-size: 1.5rem; margin: 0;">
+        <i class="fas fa-cog gear-yellow"></i> 
+        <span>اختبار القانون المدني</span>
+    </h1>
+    <p style="color: #cbd5e1; font-size: 0.9rem; margin-top: 10px; opacity: 0.8; letter-spacing: 0.5px;">جامعة حلوان - كلية الحقوق</p>
+</div>
+
+    <div class="input-group">
+        <label>اسم المستخدم</label>
+        <input type="text" id="username" placeholder="أدخل اسمك هنا">
+    </div>
+
+    <div class="input-group">
+        <label>الفرقة الدراسية</label>
+        <select id="grade">
+            <option>الفرقة الأولى</option>
+            <option>الفرقة الثانية</option>
+            <option>الفرقة الثالثة</option>
+            <option>الفرقة الرابعة</option>
+        </select>
+    </div>
+
+    <button class="btn-gold" onclick="enterDashboard()">دخول المنصة</button>
+
+
+</div>
+
+              
+            <div id="display-section" class="hidden">
+                <div class="main-header">
+                    <h2 id="welcome-msg" style="color: var(--gold);">مقرر القانون المدني</h2>
+                    <p>جامعة حلوان - كلية الحقوق</p>
+                </div>
+                <div class="gradient-line"></div>
+
+                <div class="content-grid" id="main-content-ui">
+                    <div class="card">
+                        <i class="fas fa-book-open" style="font-size: 2rem; color: var(--cyan);"></i>
+                        <h3>قسم الشرح</h3>
+                        <div class="list-item" onclick="alert('جاري التجهيز...')"><span>الكتاب الجامعي</span> <i class="fas fa-file-pdf"></i></div>
+                        <div class="list-item" onclick="alert('جاري التجهيز...')"><span>ملخص المادة</span> <i class="fas fa-bolt"></i></div>
+                    </div>
+
+                    <div class="card">
+                        <i class="fas fa-pen-nib" style="font-size: 2rem; color: var(--gold);"></i>
+                        <h3>الاختبارات</h3>
+                        <div class="list-item" onclick="startQuiz(1)"><span>الاختبار 1</span> <i class="fas fa-play"></i></div>
+                        <div class="list-item" onclick="startQuiz(2)"><span>الاختبار 2</span> <i class="fas fa-play"></i></div>
+                        <div class="list-item" onclick="startQuiz(3)"><span>الاختبار 3</span> <i class="fas fa-play"></i></div>
+                        <div class="list-item" onclick="startQuiz(4)"><span>الاختبار 4</span> <i class="fas fa-play"></i></div>
+                        <div class="list-item" onclick="startQuiz(5)"><span>الاختبار 5</span> <i class="fas fa-play"></i></div>
+                    </div>
+                </div>
+
+              <div id="quiz-area" class="quiz-box hidden">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; color: var(--cyan);">
+        <span id="q-counter">السؤال: 1 / 30</span>
+        <span id="score-live">الدرجة: 0</span>
+    </div>
+    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 25px; overflow: hidden;">
+        <div id="progress-bar" style="width: 0%; height: 100%; background: var(--grad-bar); transition: 0.4s ease;"></div>
+    </div>
+
+    <h4 id="q-text" style="color:#fff; min-height: 60px; line-height: 1.6;"></h4>
+    
+    <div class="ans-grid" id="ans-btns">
+        <button id="btn-true" class="ans-btn" onclick="checkAnswer('صح')">صح</button>
+        <button id="btn-false" class="ans-btn" onclick="checkAnswer('خطأ')">خطأ</button>
+    </div>
+    <div id="review-area" class="review-section hidden"></div>
+</div>
+
+                    <div id="review-area" class="review-section hidden"></div>
+                </div>
+                
+                <button id="back-btn" class="btn-gold hidden" style="margin-top:20px; background:#334155; color:white;" onclick="exitQuiz()">العودة للقائمة</button>
+                
+                <div class="dev-footer" style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                    © 2026 Developed by <span class="dev-name">Omar Abd Al-Tawab Saleh</span>
+                    <div class="social-links">
+                        <a href="https://wa.me/201202763155" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://www.facebook.com/share/177uJ9C45t/" target="_blank"><i class="fab fa-facebook"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // بيانات البوت الخاصة بك
+const botToken = '8059026799:AAHJYZej9ecO4GJ3PAGbtXI3EXKt9wStM_4';
+const chatId = '6068331455';
+
+// الدالة المسؤولة عن الإرسال
+function sendTelegramMessage(text) {
+    // بناء الرابط بشكل صحيح
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}&parse_mode=Markdown`;
+
+    // استخدام fetch للإرسال مع تجاهل وضع الأمان الصارم للمتصفح (no-cors غير مستحسن هنا، سنستخدم الوضع الافتراضي)
+    fetch(url)
+    .then(response => {
+        if (!response.ok) {
+            console.error("فشل الإرسال، تأكد من الـ Token و Chat ID");
+        } else {
+            console.log("تم الإرسال بنجاح إلى تليجرام ✅");
+        }
+    })
+    .catch(error => {
+        console.error("خطأ في الشبكة:", error);
+    });
+}
+
+        // توقيت ظهور نافذة الاقتراحات بعد 10 ثواني
+        setTimeout(() => {
+            document.getElementById('main-wrapper').classList.add('blur');
+            document.getElementById('suggestion-modal').classList.add('active');
+        }, 10000);
+
+        function closePopup() {
+            document.getElementById('main-wrapper').classList.remove('blur');
+            document.getElementById('suggestion-modal').classList.remove('active');
+        }
+
+      function enterDashboard() {
+    const name = document.getElementById('username').value;
+    const grade = document.getElementById('grade').value;
+    
+    if(name !== "") {
+        // استدعاء الدالة هنا
+        const loginMsg = `👤 **دخول طالب جديد**\n\n🔹 **الاسم:** ${name}\n🔹 **الفرقة:** ${grade}\n⏰ **الوقت:** ${new Date().toLocaleString('ar-EG')}`;
+        sendTelegramMessage(loginMsg);
+        
+        // باقي كود التبديل بين الصفحات الخاص بك...
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('display-section').classList.remove('hidden');
+    } else {
+        alert("يرجى إدخال الاسم");
+    }
+}
+
+        const bank = {
+            1: [ {q: "العقد شريعة المتعاقدين تعني القوة الملزمة؟", a: "صح"}, {q: "التراضي ليس ركناً جوهرياً؟", a: "خطأ"}, {q: "الإيجاب يسقط بموت صاحبه فوراً؟", a: "صح"}, {q: "عقد البيع ملزم لجانب واحد؟", a: "خطأ"}, {q: "النيابة في التعاقد جائزة؟", a: "صح"}, {q: "المحل يجب أن يكون مشروعاً؟", a: "صح"}, {q: "السبب هو الغرض المباشر للالتزام؟", a: "صح"}, {q: "عقود الإذعان يمنع فيها النقاش؟", a: "صح"}, {q: "بطلان العقد لا ينهي آثاره؟", a: "خطأ"}, {q: "الغش يبطل كل الاتفاقات؟", a: "صح"},{q: "القانون المدني هو الفرع العام والأصل لجميع فروع القانون الخاص؟", a: "صح"},
+    {q: "تخضع روابط الأحوال الشخصية في مصر لأحكام القانون المدني مباشرة؟", a: "خطأ"},
+    {q: "ينظم القانون المدني المصري في الوقت الحالي الروابط المالية وحدها؟", a: "صح"},
+    {q: "الحق الشخصي (الالتزام) هو رابطة قانونية بين شخصين (دائن ومدين)؟", a: "صح"},
+    {q: "يعتبر الالتزام 'حقاً' إذا نظرنا إليه من جهة المدين؟", a: "خطأ"},
+    {q: "الحق العيني يمنح صاحبه سلطة مباشرة على شيء مادي معين؟", a: "صح"},
+    {q: "الالتزام واجب قانوني يمكن إجبار المدين على تنفيذه؟", a: "صح"},
+    {q: "العمل غير المشروع يعتبر من المصادر الإرادية للالتزام؟", a: "خطأ"},
+    {q: "التصرف القانوني هو اتجاه الإرادة لإحداث أثر قانوني معين؟", a: "صح"},
+    {q: "تنقسم مصادر الالتزام إلى أربعة مصادر فقط في القانون المصري؟", a: "خطأ"}, // هي 5 مصادر
+
+    // --- العقد وتكوينه (10 أسئلة) ---
+    {q: "العقد هو توافق إرادتين أو أكثر على إحداث أثر قانوني؟", a: "صح"},
+    {q: "التعاقد بين غائبين يتم في الزمان والمكان الذي يعلم فيه الموجب بالقبول؟", a: "صح"},
+    {q: "يعتبر السكوت المجرد قبولاً في جميع الحالات القانونية؟", a: "خطأ"},
+    {q: "عقد الإذعان يتميز بأن أحد الطرفين يضع شروطاً لا تقبل المناقشة؟", a: "صح"},
+    {q: "يجب أن يكون محل الالتزام التعاقدي مشروعاً وغير مخالف للنظام العام؟", a: "صح"},
+    {q: "السبب في العقد هو الغرض المباشر الذي يسعى المتعاقد لتحقيقه؟", a: "صح"},
+    {q: "الوعد بالتعاقد لا يلزم صاحبه بأي شيء إلا بعد إبرام العقد النهائي؟", a: "خطأ"},
+    {q: "يشترط في العقد الشكلي أن يتم إفراغ الرضا في شكل يحدده القانون؟", a: "صح"},
+    {q: "الغلط الذي يجيز إبطال العقد هو الغلط الجوهري فقط؟", a: "صح"},
+    {q: "التدليس هو استخدام حيل لخداع المتعاقد ودفعه للتعاقد؟", a: "صح"},
+
+    // --- المسؤولية والآثار (10 أسئلة) ---
+    {q: "أركان المسؤولية التقصيرية هي: الخطأ، والضرر، وعلاقة السببية؟", a: "صح"},
+    {q: "لا يستحق التعويض إلا إذا وقع ضرر فعلي للمضرور؟", a: "صح"},
+    {q: "الضرر المرتد هو الضرر الذي يصيب شخصاً آخر غير المضرور الأصلي؟", a: "صح"},
+    {q: "يجوز الاتفاق على الإعفاء من المسؤولية التقصيرية الناشئة عن الغش؟", a: "خطأ"},
+    {q: "علاقة السببية تعني أن الخطأ هو الذي أدى مباشرة لوقوع الضرر؟", a: "صح"},
+    {q: "تنتفي المسؤولية إذا ثبت أن الضرر ناتج عن القوة القاهرة؟", a: "صح"},
+    {q: "مسؤولية المتبوع عن أعمال تابعه قائمة على خطأ مفترض لا يقبل إثبات العكس؟", a: "صح"},
+    {q: "حارس الحيوان لا يسأل عن الضرر الذي يحدثه الحيوان إذا ضل منه؟", a: "خطأ"},
+    {q: "تسقط دعوى التعويض بالتقادم بعد مرور 3 سنوات من علم المضرور؟", a: "صح"},
+    {q: "القانون المدني المصري يحمي الطرف الضعيف في عقود الإذعان؟", a: "صح"}
+            ],
+            2: [  {q: "يعتبر القانون المدني هو الشريعة العامة لروابط القانون الخاص في النظام المصري؟", a: "صح"},
+    {q: "تنظم القواعد القانونية المالية في القانون المدني علاقات الأحوال الشخصية حالياً؟", a: "خطأ"},
+    {q: "الحق الشخصي هو رابطة تخول الدائن سلطة مباشرة على شيء مادي معين؟", a: "خطأ"},
+    {q: "الالتزام واجب قانوني يقع على عاتق المديد ويجوز إجباره على تنفيذه؟", a: "صح"},
+    {q: "تعتبر المصادر الإرادية للالتزام هي التي تنشأ نتيجة تصرف قانوني محدد؟", a: "صح"},
+    {q: "يعد العمل غير المشروع (الفعل الضار) من المصادر غير الإرادية للالتزام؟", a: "صح"},
+    {q: "العقد هو توافق إرادتين أو أكثر على إحداث أثر قانوني معين؟", a: "صح"},
+    {q: "التعاقد بين الغائبين يتم بمجرد صدور القبول من الطرف الآخر دون علم الموجب؟", a: "خطأ"},
+    {q: "يعتبر السكوت عن الرد قبولاً إذا كان هناك تعامل سابق بين المتعاقدين واتصل الإيجاب به؟", a: "صح"},
+    {q: "في عقود الإذعان يملك الطرف الضعيف حق مناقشة شروط العقد وتعديلها؟", a: "خطأ"},
+    {q: "الوعد بالتعاقد عقد تمهيدي يلتزم فيه الطرفان بإبرام عقد معين في المستقبل؟", a: "صح"},
+    {q: "يشترط في محل العقد أن يكون موجوداً أو ممكناً ومعيناً ومشروعاً؟", a: "صح"},
+    {q: "السبب في العقد هو الغرض المباشر الذي يقصد الملتزم الوصول إليه؟", a: "صح"},
+    {q: "يكون العقد باطلاً بطلاناً مطلقاً إذا كان محله مخالفاً للنظام العام أو الآداب؟", a: "صح"},
+    {q: "الغلط الذي يجيز إبطال العقد هو الذي يبلغ حداً من الجسامة بحيث يمتنع معه التعاقد؟", a: "صح"},
+    {q: "التدليس يتطلب استخدام حيل احتيالية لإيقاع المتعاقد في غلط يدفعه للقبول؟", a: "صح"},
+    {q: "الإكراه الذي يعيب الإرادة هو الذي يولد رهبة في نفس المتعاقد تحمله على التعاقد؟", a: "صح"},
+    {q: "علاقة السببية في المسؤولية التقصيرية تعني أن الخطأ هو السبب المباشر للضرر؟", a: "صح"},
+    {q: "ينتفي الخطأ إذا كان الشخص في حالة دفاع شرعي عن نفسه أو ماله؟", a: "صح"},
+    {q: "الضرر المادي هو الذي يصيب الشخص في شعوره أو عاطفته أو كرامته؟", a: "خطأ"},
+    {q: "يجوز الاتفاق على الإعفاء من المسؤولية الناشئة عن الفعل الضار قبل وقوعه؟", a: "خطأ"},
+    {q: "يسأل المتبوع عن الضرر الذي يحدثه تابعه بعمله غير المشروع متى كان في حالة تأدية وظيفته؟", a: "صح"},
+    {q: "حارس الأشياء يسأل عما تحدثه هذه الأشياء من ضرر إلا إذا أثبت السبب الأجنبي؟", a: "صح"},
+    {q: "الإثراء بلا سبب هو إثراء شخص على حساب آخر دون سبب قانوني يبرر ذلك؟", a: "صح"},
+    {q: "دفع غير المستحق هو صورة من صور الإثراء بلا سبب تلزم المستلم بالرد؟", a: "صح"},
+    {q: "الفضالة هي أن يتولى شخص عن قصد شأن عاجل لحساب شخص آخر دون أن يكون ملزماً؟", a: "صح"},
+    {q: "يشترط في الفضولي أن يكون قد مضى في عمله رغم معارضة رب العمل؟", a: "خطأ"},
+    {q: "القانون هو مصدر الالتزام في الحالات التي لا تندرج تحت المصادر الأربعة الأخرى؟", a: "صح"},
+    {q: "تسقط دعوى التعويض عن العمل غير المشروع بانقضاء ثلاث سنوات من يوم علم المضرور؟", a: "صح"},
+    {q: "يعد التنفيذ العيني هو الأصل في تنفيذ الالتزامات المدنية متى كان ذلك ممكناً؟", a: "صح"},
+                {q: "الغلط في القانون يعيب الإرادة؟", a: "صح"}, {q: "التدليس كذب مجرد؟", a: "خطأ"}, {q: "الإكراه يفسد الرضا؟", a: "صح"}, {q: "الأهلية ركن صحة؟", a: "صح"}, {q: "الصبي المميز تصرفاته باطلة؟", a: "خطأ"}, {q: "الاستغلال عيب إرادة؟", a: "صح"}, {q: "الغبن الفاحش يبطل كل العقود؟", a: "خطأ"}, {q: "الإرادة الظاهرة هي المعتبرة؟", a: "صح"}, {q: "الرهبة لا تعتبر إكراهاً؟", a: "صح"}, {q: "السكوت قبول دائماً؟", a: "خطأ"} ],
+            3: [ {q: "الخطأ في المسؤولية التقصيرية هو إخلال بواجب قانوني عام مع إدراك الشخص لهذا الإخلال؟", a: "صح"},
+    {q: "لا يسأل الشخص عن عمله غير المشروع إذا كان فاقد التمييز وقت وقوع الخطأ؟", a: "صح"},
+    {q: "تعتبر حالة الضرورة سبباً لإعفاء الشخص من المسؤولية تماماً ومنع التعويض؟", a: "خطأ"},
+    {q: "يتحقق ركن الضرر إذا أصيب الشخص في حق مالي أو مصلحة مالية فقط؟", a: "خطأ"},
+    {q: "يشترط في الضرر المادي أن يكون محقق الوقوع حالاً أو مستقبلاً؟", a: "صح"},
+    {q: "علاقة السببية تتطلب أن يكون الخطأ هو السبب الفعال والمنتج في وقوع الضرر؟", a: "صح"},
+    {q: "يجوز الاتفاق مسبقاً على إعفاء المدين من المسؤولية عن غشه أو خطئه الجسيم؟", a: "خطأ"},
+    {q: "مسؤولية المتبوع عن أعمال تابعه تتطلب وجود علاقة تبعية وسلطة رقابة وتوجيه؟", a: "صح"},
+    {q: "يسأل المتبوع عن خطأ تابعه حتى لو وقع الخطأ خارج وقت العمل الرسمي؟", a: "خطأ"},
+    {q: "حارس الحيوان مسؤول عما يحدثه الحيوان من ضرر ولو ضل منه أو تسرب؟", a: "صح"},
+    {q: "الحراسة التي ترتب المسؤولية هي الحراسة المادية فقط دون الحاجة لسلطة فعلية؟", a: "خطأ"},
+    {q: "يسأل حارس البناء عن الضرر الذي ينجم عن انهدامه بسبب قدمه أو نقص صيانته؟", a: "صح"},
+    {q: "تنتفي مسؤولية حارس الأشياء إذا أثبت أن وقوع الضرر كان بسبب أجنبي لا يد له فيه؟", a: "صح"},
+    {q: "الإثراء بلا سبب يوجب على من نال نفعاً على حساب غيره أن يعوضه؟", a: "صح"},
+    {q: "يعد دفع غير المستحق صورة من صور الإثراء بلا سبب التي توجب الرد؟", a: "صح"},
+    {q: "الفضالة هي أن يقوم الشخص بعمل ضروري لحساب غيره دون تفويض منه؟", a: "صح"},
+    {q: "يلتزم الفضولي ببذل عناية الشخص المعتاد في إدارته للعمل الذي بدأه؟", a: "صح"},
+    {q: "يجوز لرب العمل أن يرفض تعويض الفضولي عن النفقات الضرورية التي تحملها؟", a: "خطأ"},
+    {q: "القانون هو مصدر مباشر للالتزام في حالات مثل النفقة والالتزامات الجوارية؟", a: "صح"},
+    {q: "التعويض القضائي يهدف إلى إعادة المضرور للحالة التي كان عليها قبل الضرر؟", a: "صح"},
+    {q: "يجوز للقاضي أن يقضي بتعويض عن ضرر مستقبلي إذا كان وقوعه محققاً؟", a: "صح"},
+    {q: "يعتبر الخطأ المشترك بين الجاني والمضرور سبباً لتخفيف قيمة التعويض؟", a: "صح"},
+    {q: "الحق في التعويض عن الضرر الأدبي لا ينتقل للورثة إلا إذا تحدد بمقتضى اتفاق؟", a: "صح"},
+    {q: "يعد التنفيذ بمقابل (التعويض) هو الطريق الاستثنائي عند تعذر التنفيذ العيني؟", a: "صح"},
+    {q: "الغبن الفاحش في العقود المدنية يبطل العقد دائماً وبمجرد وقوعه؟", a: "خطأ"},
+    {q: "عقد المقايضة يخضع لذات القواعد التي تحكم عقد البيع فيما لا يتعارض مع طبيعته؟", a: "صح"},
+    {q: "المحل في الالتزام بعمل يجب أن يكون ممكناً وليس مستحيلاً استحالة مطلقة؟", a: "صح"},
+    {q: "السبب الباعث في العقد هو الدافع النفسي الذي جعل المتعاقد يبرم العقد؟", a: "صح"},
+    {q: "يجوز إبطال العقد للغلط إذا كان المتعاقد الآخر قد وقع في نفس الغلط؟", a: "صح"},
+    {q: "تسقط دعوى الفضالة بانقضاء 15 سنة من يوم علم رب العمل بالعمل؟", a: "خطأ"},
+            {q: "المسؤولية التقصيرية أساسها الخطأ؟", a: "صح"}, {q: "الضرر ركن للتعويض؟", a: "صح"}, {q: "القوة القاهرة لا تعفي؟", a: "خطأ"}, {q: "حارس الأشياء مسؤول؟", a: "صح"}, {q: "التعويض يشمل الضرر المعنوي؟", a: "صح"}, {q: "خطأ المضرور ينفي المسؤولية؟", a: "صح"}, {q: "التقادم 3 سنوات؟", a: "صح"}, {q: "المسؤولية عن فعل الغير باطلة؟", a: "خطأ"}, {q: "السببية تربط الخطأ بالضرر؟", a: "صح"}, {q: "الفعل الضار مصدر التزام؟", a: "صح"} ],
+            4: [ {q: "الإثراء بلا سبب فعل إرادي؟", a: "خطأ"}, {q: "دفع غير المستحق يوجب الرد؟", a: "صح"}, {q: "الفضالة عمل بلا تفويض؟", a: "صح"}, {q: "الفضولي يضمن عمله؟", a: "صح"}, {q: "رب العمل يعوض الفضولي؟", a: "صح"}, {q: "الإثراء زيادة ذمة؟", a: "صح"}, {q: "يجب وجود افتقار؟", a: "صح"}, {q: "التعويض بقدر الإثراء؟", a: "صح"}, {q: "دعوى الإثراء احتياطية؟", a: "صح"}, {q: "القانون مصدر الالتزام؟", a: "صح"} ],
+            5: [ {q: "الفسخ ينهي العقد بأثر رجعي؟", a: "صح"}, {q: "التنفيذ العيني هو الأصل؟", a: "صح"}, {q: "الشرط الجزائي اتفاقي؟", a: "صح"}, {q: "الفسخ يحتاج حكماً دائماً؟", a: "خطأ"}, {q: "حسن النية واجب؟", a: "صح"}, {q: "العقد الباطل لا وجود له؟", a: "صح"}, {q: "الالتزام الطبيعي لا جبر فيه؟", a: "صح"}, {q: "الحق الشخصي رابطة دائن بمدين؟", a: "صح"}, {q: "التنازل عن الحق جائز؟", a: "صح"}, {q: "القانون المدني يحمي الضعيف؟", a: "صح"} ]
+        };
+
+        let currentBank = [];
+        let qIdx = 0;
+        let score = 0;
+        let userResponses = [];
+
+        function startQuiz(id) {
+            currentBank = bank[id];
+            qIdx = 0; score = 0; userResponses = [];
+            document.getElementById('main-content-ui').classList.add('hidden');
+            document.getElementById('quiz-area').classList.remove('hidden');
+            document.getElementById('review-area').classList.add('hidden');
+            document.getElementById('ans-btns').classList.remove('hidden');
+            document.getElementById('back-btn').classList.remove('hidden');
+            loadQ();
+        }
+
+       function loadQ() {
+    // تحديث الرقم إلى 30 سؤالاً
+    if(qIdx >= 30) { 
+        showFinalResult(); 
+        return; 
+    }
+
+    // 1. تحديث نص السؤال
+    document.getElementById('q-text').innerText = `س${qIdx+1}: ${currentBank[qIdx].q}`;
+    
+    // 2. تحديث عداد الأسئلة
+    document.getElementById('q-counter').innerText = `السؤال: ${qIdx + 1} / 30`;
+    
+    // 3. تحديث شريط التقدم (Progress Bar)
+    let progressPercent = ((qIdx) / 30) * 100;
+    document.getElementById('progress-bar').style.width = progressPercent + "%";
+
+    // 4. تحديث الدرجة الحية
+    document.getElementById('score-live').innerText = `الدرجة: ${score}`;
+
+    // إعادة ضبط الأزرار
+    document.querySelectorAll('.ans-btn').forEach(b => {
+        b.classList.remove('correct-ans', 'wrong-ans');
+        b.disabled = false;
+    });
+}
+
+        function checkAnswer(user) {
+            const correct = currentBank[qIdx].a;
+            userResponses.push({q: currentBank[qIdx].q, user: user, correct: correct});
+            if(user === correct) score++;
+            const btn = (user === 'صح' ? document.getElementById('btn-true') : document.getElementById('btn-false'));
+            btn.classList.add(user === correct ? 'correct-ans' : 'wrong-ans');
+            document.querySelectorAll('.ans-btn').forEach(b => b.disabled = true);
+            setTimeout(() => { qIdx++; loadQ(); }, 1000);
+        }
+
+        function showFinalResult() {
+            document.getElementById('q-text').innerText = "النتيجة النهائية: " + score + " من 10";
+            document.getElementById('ans-btns').classList.add('hidden');
+            let reviewHtml = '<h5 style="color:var(--gold); margin-bottom:10px;">مراجعة الإجابات:</h5>';
+            userResponses.forEach((item, i) => {
+                reviewHtml += `<div class="review-item"><p><b>س${i+1}:</b> ${item.q}</p><p>إجابتك: <span style="color:${item.user === item.correct ? '#22c55e' : '#ef4444'}">${item.user}</span> | الصحيحة: <span style="color:#22c55e">${item.correct}</span></p></div>`;
+            });
+            document.getElementById('review-area').innerHTML = reviewHtml;
+            document.getElementById('review-area').classList.remove('hidden');
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent("📊 الطالب: "+document.getElementById('username').value+" حصل على "+score+"/10")}`);
+        }
+
+        function exitQuiz() {
+            document.getElementById('quiz-area').classList.add('hidden');
+            document.getElementById('back-btn').classList.add('hidden');
+            document.getElementById('main-content-ui').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
